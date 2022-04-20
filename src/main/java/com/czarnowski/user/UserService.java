@@ -1,0 +1,32 @@
+package com.czarnowski.user;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+@Service
+public class UserService {
+
+    private final UserRepository users;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService(UserRepository users, PasswordEncoder passwordEncoder) {
+        this.users = users;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public void add(User user) {
+        if (users.existsById(user.getEmail())) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        users.save(user);
+    }
+}
